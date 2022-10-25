@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService
 class MainActivity : AppCompatActivity() {
     private lateinit var viewBinding: ActivityMainBinding
     private  val TAG = "MainActivity"
+    //https://developer.android.com/codelabs/camerax-getting-started?hl=zh-cn#1
     private var imageCapture: ImageCapture? = null
 
     private var videoCapture: VideoCapture<Recorder>? = null
