@@ -7,6 +7,7 @@
     rtmp
     faac
     x264
+    CameraX
 
 ### 支持
 
