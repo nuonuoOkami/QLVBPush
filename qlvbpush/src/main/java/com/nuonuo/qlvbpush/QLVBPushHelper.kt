@@ -3,6 +3,7 @@ package com.nuonuo.qlvbpush
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.*
@@ -16,13 +17,13 @@ class QLVBPushHelper(
     private val activity: ComponentActivity,
     private val previewView: PreviewView,
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
-    private val width: Int = 640,
-    private val height: Int = 480
+    private var width: Int = 1080,
+    private var height: Int = 1920
 ) {
     private val TAG = "QLVBPushHelper"
 
     //是否开始推流
-    private var isOpenPush = false
+    private var isOpenPush = true
 
     //推流地址
     private var pushPath: String? = null

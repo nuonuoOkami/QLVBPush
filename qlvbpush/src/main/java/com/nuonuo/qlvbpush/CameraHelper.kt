@@ -28,7 +28,9 @@ class CameraHelper(
     //变焦值
     private var zoomValue = 0f;
 
+    //
     private lateinit var useCaseGroup: UseCaseGroup
+    //
     private lateinit var preview: Preview
 
     init {
