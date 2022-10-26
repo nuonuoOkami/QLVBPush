@@ -1,33 +1,37 @@
 
-
 cmake_minimum_required(VERSION 3.18.1)
 
-# Declares and names the project.
 
-project("qlvbpush")
+#直接源码 干
+add_subdirectory(librtmp)
 
+#导入头文件
+include_directories(librtmp libx264/include libfaac/include)
 
-add_library( # Sets the name of the library.
+#设置264 静态库路径
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libx264/libs/${CMAKE_ANDROID_ARCH_ABI}")
+#设置faac 静态库
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libfaac/libs/${CMAKE_ANDROID_ARCH_ABI}")
+#就几个我也全部all in
+file(GLOB src_files *.cpp)
+add_library(
         qlvbpush
-
-
         SHARED
+        ${src_files}
+)
 
 
-        qlvbpush.cpp)
-
-
-find_library( # Sets the name of the path variable.
+find_library(
         log-lib
 
-        # Specifies the name of the NDK library that
-        # you want CMake to locate.
+
         log)
 
 
-target_link_libraries( # Specifies the target library.
+target_link_libraries(
         qlvbpush
+        rtmp
+        x264
+        faac
 
-        # Links the target library to the log library
-        # included in the NDK.
         ${log-lib})
