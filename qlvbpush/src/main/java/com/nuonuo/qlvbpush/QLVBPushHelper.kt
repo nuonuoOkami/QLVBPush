@@ -3,14 +3,9 @@ package com.nuonuo.qlvbpush
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview
-import androidx.camera.core.UseCaseGroup
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.core.*
 import androidx.camera.view.PreviewView
 import androidx.core.app.ComponentActivity
 import androidx.core.content.ContextCompat
@@ -27,13 +22,38 @@ class QLVBPushHelper(
     private val TAG = "QLVBPushHelper"
 
     //是否开始推流
-    private var isPush = false
-
-    //xxx 暂时没想好叫什么
-    private lateinit var cameraProvider: ProcessCameraProvider
+    private var isOpenPush = false
 
     //推流地址
     private var pushPath: String? = null
+
+
+    //相机帮助类 支持 变焦/切换摄像头/开关闪光灯
+    var cameraHelper: CameraHelper?
+
+    init {
+        val executorService = Executors.newSingleThreadExecutor()
+        val mImageAnalysis =
+            ImageAnalysis.Builder()
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+                .setTargetResolution(Size(width, height)) // 图片的建议尺寸
+                .setOutputImageRotationEnabled(true) // 是否旋转分析器中得到的图片
+                .setTargetRotation(Surface.ROTATION_0) // 允许旋转后 得到图片的旋转设置
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build().apply {
+                    setAnalyzer(
+                        executorService
+                    ) {
+                        if (isOpenPush) {
+                            it.close()
+                        }
+
+                    }
+                }
+
+        cameraHelper =
+            CameraHelper(activity, previewView, cameraSelector, mImageAnalysis)
+    }
 
     /**
      * 开始推流
@@ -43,7 +63,7 @@ class QLVBPushHelper(
             throw RuntimeException("推流地址不能为null")
         }
         this.pushPath = pushPath;
-        isPush = true
+        isOpenPush = true
     }
 
     /**
@@ -61,60 +81,23 @@ class QLVBPushHelper(
             )
 
         }
+        cameraHelper?.startPreview()
 
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
-        cameraProviderFuture.addListener({
-            cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().apply {
-                this.setSurfaceProvider(previewView.surfaceProvider)
-            }
-            val executorService = Executors.newSingleThreadExecutor()
-            val mImageAnalysis =
-                ImageAnalysis.Builder()
-                    .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
-                    .setTargetResolution(Size(width, height)) // 图片的建议尺寸
-                    .setOutputImageRotationEnabled(true) // 是否旋转分析器中得到的图片
-                    .setTargetRotation(Surface.ROTATION_0) // 允许旋转后 得到图片的旋转设置
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build().apply {
-                        setAnalyzer(
-                            executorService
-                        ) {
-                            if (isPush) {
-                                //todo 转换
-                                it.close()
-                            }
-
-                        }
-                    }
-
-            val useCaseGroup =
-                UseCaseGroup.Builder().addUseCase(preview).addUseCase(mImageAnalysis).build()
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(activity, cameraSelector, useCaseGroup)
-            } catch (ex: Exception) {
-                Log.e(TAG, "QLVBPushHelper bindToLifecycle :Error$ex ")
-            }
-
-
-        }, ContextCompat.getMainExecutor(activity))
     }
 
     /**
      * 停止推流
      */
     fun stopPush() {
-        isPush = false
-        stopPreview()
+        isOpenPush = false
+        cameraHelper?.stopPreview()
     }
 
     /**
      * 停止预览
      */
     fun stopPreview() {
-        cameraProvider.unbindAll()
+        cameraHelper?.stopPreview()
     }
 
 
@@ -141,18 +124,4 @@ class QLVBPushHelper(
             }.toTypedArray()
     }
 
-
-    /**
-     * 切换摄像头
-     */
-    fun switchCamera() {
-        stopPreview()
-        cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
-            CameraSelector.DEFAULT_FRONT_CAMERA
-        } else {
-            CameraSelector.DEFAULT_BACK_CAMERA
-        }
-        startPreview()
-
-    }
 }

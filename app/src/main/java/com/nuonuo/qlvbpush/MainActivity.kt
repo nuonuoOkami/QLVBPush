@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     //https://www.cnblogs.com/rustfisher/p/15700757.html
 
     private lateinit var helper: QLVBPushHelper
+    private var dengState = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -28,9 +29,21 @@ class MainActivity : AppCompatActivity() {
             helper.stopPreview()
         }
         binding.btnSwitch.setOnClickListener {
-            helper.switchCamera()
+            helper.cameraHelper?.switchCamera()
         }
 
+        binding.btnChangeAdd.setOnClickListener {
+            helper.cameraHelper?.zoomAdd();
+        }
+        binding.btnChangeDel.setOnClickListener {
+            helper.cameraHelper?.zoomDown();
+        }
+        binding.btnDeng.setOnClickListener {
+            dengState = !dengState
+            helper.cameraHelper?.enableTorch(dengState);
+
+
+        }
     }
 }
 

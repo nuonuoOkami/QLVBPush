@@ -31,6 +31,30 @@
         app:layout_constraintLeft_toRightOf="@+id/btn_stop"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/btn_change_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="变焦+"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_start" />
+
+    <Button
+        android:id="@+id/btn_change_del"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="变焦-"
+        app:layout_constraintLeft_toRightOf="@+id/btn_change_add"
+        app:layout_constraintTop_toBottomOf="@+id/btn_start" />
+
+    <Button
+        android:id="@+id/btn_deng"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开灯/关灯"
+        app:layout_constraintLeft_toRightOf="@+id/btn_change_del"
+        app:layout_constraintTop_toBottomOf="@+id/btn_start" />
+
     <androidx.camera.view.PreviewView
         android:id="@+id/viewFinder"
         android:layout_width="match_parent"
