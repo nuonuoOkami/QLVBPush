@@ -1,38 +1,71 @@
 package com.nuonuo.qlvbpush
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.*
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.PreviewView
 import androidx.core.app.ComponentActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import java.util.concurrent.Executors
 
+/**
+ * 推流专用
+ * @property activity ComponentActivity
+ * @property previewView PreviewView
+ * @property cameraSelector CameraSelector
+ * @property width Int
+ * @property height Int
+ * @property TAG String
+ * @property isOpenPush Boolean
+ * @property pushPath String?
+ * @property cameraHelper CameraHelper?
+ * @constructor
+ */
+@SuppressLint("RestrictedApi")
 class QLVBPushHelper(
 
     private val activity: ComponentActivity,
     private val previewView: PreviewView,
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
     private var width: Int = 1080,
-    private var height: Int = 1920
+    private var height: Int = 1920,
+    fps: Int = 25,
+    rate: Int = 800000
+
 ) {
     private val TAG = "QLVBPushHelper"
 
+
     //是否开始推流
-    private var isOpenPush = true
+    private var isOpenPush = false
 
     //推流地址
     private var pushPath: String? = null
 
+    private var videoHelper: VideoHelper
+
+    private var audioHelper: AudioHelper
 
     //相机帮助类 支持 变焦/切换摄像头/开关闪光灯
     var cameraHelper: CameraHelper?
 
     init {
+
+        //加载so 切勿忘记
+        System.loadLibrary("q_push")
+        //初始化音视频助手
+        audioHelper = AudioHelper()
+        videoHelper = VideoHelper(fps, rate, width, height)
+
         val executorService = Executors.newSingleThreadExecutor()
         val mImageAnalysis =
             ImageAnalysis.Builder()
@@ -54,6 +87,15 @@ class QLVBPushHelper(
 
         cameraHelper =
             CameraHelper(activity, previewView, cameraSelector, mImageAnalysis)
+        activity.lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun releaseRes() {
+                release()
+            }
+
+        })
+
+
     }
 
     /**
@@ -83,6 +125,8 @@ class QLVBPushHelper(
 
         }
         cameraHelper?.startPreview()
+        //初始化videoHelper
+
 
     }
 
@@ -92,6 +136,7 @@ class QLVBPushHelper(
     fun stopPush() {
         isOpenPush = false
         cameraHelper?.stopPreview()
+        release()
     }
 
     /**
@@ -114,6 +159,8 @@ class QLVBPushHelper(
 
 
     companion object {
+
+
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA,
@@ -124,5 +171,14 @@ class QLVBPushHelper(
                 }
             }.toTypedArray()
     }
+
+
+    /**
+     * 释放
+     */
+    private fun release() {
+        Log.e(TAG, "release: ")
+    }
+
 
 }

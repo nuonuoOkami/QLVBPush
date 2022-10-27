@@ -14,24 +14,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libx264/libs/${CMA
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -L${CMAKE_SOURCE_DIR}/libfaac/libs/${CMAKE_ANDROID_ARCH_ABI}")
 #就几个我也全部all in
 file(GLOB src_files *.cpp)
+
 add_library(
-        qlvbpush
+        q_push
         SHARED
         ${src_files}
 )
 
-
-find_library(
-        log-lib
-
-
-        log)
-
-
 target_link_libraries(
-        qlvbpush
+        q_push
         rtmp
         x264
         faac
 
-        ${log-lib})
+        log)

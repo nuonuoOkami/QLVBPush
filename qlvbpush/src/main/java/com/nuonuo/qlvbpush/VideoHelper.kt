@@ -14,7 +14,7 @@ class VideoHelper(private val fps: Int, private val rate: Int, width: Int, heigh
 
     init {
         //native初始化video
-        videoInit(fps, rate, width, height)
+        native_video_init(fps, rate, width, height)
     }
 
     /**
@@ -25,7 +25,7 @@ class VideoHelper(private val fps: Int, private val rate: Int, width: Int, heigh
     }
 
     //初始化video
-    private external fun videoInit(fps: Int, bitrate: Int, width: Int, height: Int)
+    private external fun native_video_init(fps: Int, bitrate: Int, width: Int, height: Int)
 
     //推送数据
     private external fun pushData(data: ByteArray)

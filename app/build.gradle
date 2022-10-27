@@ -15,7 +15,9 @@ android {
         targetSdk 32
         versionCode 1
         versionName "1.0"
-
+        ndk{
+            abiFilters("armeabi-v7a")  // apk/lib/libnative-lib.so 指定编译的是此平台
+        }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
