@@ -5,42 +5,20 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.hardware.Camera
 import android.os.Build
-import android.util.Log
-import android.util.Size
-import android.view.Surface
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
-import androidx.camera.view.PreviewView
+import android.view.SurfaceHolder
 import androidx.core.app.ComponentActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import java.util.concurrent.Executors
-import kotlin.math.abs
+
 
 /**
- * 推流专用
- * @property activity ComponentActivity
- * @property previewView PreviewView
- * @property cameraSelector CameraSelector
- * @property mWidth Int
- * @property mHeight Int
- * @property TAG String
- * @property isOpenPush Boolean
- * @property pushPath String?
- * @property cameraHelper CameraHelper?
- * @constructor
+ *
  */
-@SuppressLint("RestrictedApi")
 class QLVBPushHelper(
 
     private val activity: ComponentActivity,
-    private val previewView: PreviewView,
-    private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
-    private var mWidth: Int = 1080,
-    private var mHeight: Int = 1920,
+    cameraId: Int = Camera.CameraInfo.CAMERA_FACING_BACK,
+    mWidth: Int = 1080,
+    mHeight: Int = 1920,
     fps: Int = 25,
     rate: Int = 800000
 
@@ -49,7 +27,7 @@ class QLVBPushHelper(
 
 
     //是否开始推流
-    private var isOpenPush = true
+    private var isOpenPush = false
 
     //推流地址
     private var pushPath: String? = null
@@ -57,64 +35,28 @@ class QLVBPushHelper(
     private var videoHelper: VideoHelper
 
     private var audioHelper: AudioHelper
+    var cameraHelper: CameraHelper =
+        CameraHelper(activity, cameraId, mWidth, mHeight) { w, h ->
+            {
 
-    //相机帮助类 支持 变焦/切换摄像头/开关闪光灯
-    var cameraHelper: CameraHelper?
+            }
+        }
+
 
     init {
 
         //加载so 切勿忘记
         System.loadLibrary("q_push")
-        setPreviewSize()
         //初始化音视频助手
         audioHelper = AudioHelper()
         videoHelper = VideoHelper(fps, rate, mWidth, mHeight)
+    }
 
-
-        Log.d(TAG, "mWidth: , "+mWidth);
-        Log.d(TAG, "mHeight: , "+mHeight);
-        val executorService = Executors.newSingleThreadExecutor()
-        val mImageAnalysis =
-            ImageAnalysis.Builder()
-                .setMaxResolution(Size(mWidth, mHeight))
-                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
-                .setTargetResolution(Size(mWidth, mHeight)) // 图片的建议尺寸
-                .setOutputImageRotationEnabled(true) // 是否旋转分析器中得到的图片
-                .setTargetRotation(Surface.ROTATION_0) // 允许旋转后 得到图片的旋转设置
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build().apply {
-                    setAnalyzer(
-                        executorService
-                    ) {
-                        if (isOpenPush) {
-
-                            Log.d(TAG, "输出width=" + it.width)
-                            Log.d(TAG, "输出height=" + it.height)
-
-                            it.close()
-                        }
-
-                    }
-                }
-
-        cameraHelper =
-            CameraHelper(
-                activity,
-                previewView,
-                cameraSelector,
-                mImageAnalysis,
-                width = mWidth,
-                height = mHeight
-            );
-        activity.lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun releaseRes() {
-                release()
-            }
-
-        })
-
-
+    /**
+     * 设置SurfaceHolder 用于预览
+     */
+    fun setPreviewDisplay(holder: SurfaceHolder) {
+        cameraHelper.setPreviewDisplay(holder)
     }
 
     /**
@@ -143,7 +85,7 @@ class QLVBPushHelper(
             )
 
         }
-        cameraHelper?.startPreview()
+        cameraHelper.startPreview()
         //初始化videoHelper
 
 
@@ -154,7 +96,7 @@ class QLVBPushHelper(
      */
     fun stopPush() {
         isOpenPush = false
-        cameraHelper?.stopPreview()
+        cameraHelper.stopPreview()
         release()
     }
 
@@ -162,7 +104,7 @@ class QLVBPushHelper(
      * 停止预览
      */
     fun stopPreview() {
-        cameraHelper?.stopPreview()
+        cameraHelper.stopPreview()
     }
 
 
@@ -203,36 +145,4 @@ class QLVBPushHelper(
     private external fun pushInit();
 
 
-    /**
-     * 设置预览大小和获取x264 参数
-     */
-    private fun setPreviewSize() {
-        var mCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        if (cameraSelector == CameraSelector.DEFAULT_FRONT_CAMERA) {
-            mCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-        }
-        val camera = Camera.open(mCameraId)
-        val parameters = camera.parameters
-        // 获取摄像头支持的宽、高
-        val supportedPreviewSizes = parameters.supportedPreviewSizes
-        var size = supportedPreviewSizes[0]
-        Log.e(TAG, "Camera支持: " + size.width + "x" + size.height)
-        // 选择一个与设置的差距最小的支持分辨率
-        var m: Int = abs(size.height * size.width - mWidth * mHeight)
-        supportedPreviewSizes.removeAt(0)
-        val iterator: Iterator<Camera.Size> = supportedPreviewSizes.iterator()
-        // 遍历
-        while (iterator.hasNext()) {
-            val next = iterator.next()
-            Log.d(TAG, "支持 " + next.width + "x" + next.height)
-            val n: Int = abs(next.height * next.width - mWidth * mHeight)
-            if (n < m) {
-                m = n
-                size = next
-            }
-        }
-        mWidth = size.width
-        mHeight = size.height
-        Log.d(TAG, "预览分辨率 width:" + size.width + " height:" + size.height)
-    }
 }

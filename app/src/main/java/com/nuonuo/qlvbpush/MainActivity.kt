@@ -2,7 +2,6 @@ package com.nuonuo.qlvbpush
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.*
 import com.nuonuo.qlvbpush.databinding.ActivityMainBinding
 
 
@@ -22,26 +21,26 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.btnStart.setOnClickListener {
-
-            helper = QLVBPushHelper(this, binding.viewFinder)
+            helper = QLVBPushHelper(this)
+            helper.setPreviewDisplay(binding.surface.holder)
             helper.startPreview()
         }
         binding.btnStop.setOnClickListener {
             helper.stopPreview()
         }
         binding.btnSwitch.setOnClickListener {
-            helper.cameraHelper?.switchCamera()
+            helper.cameraHelper.switchCamera()
         }
 
         binding.btnChangeAdd.setOnClickListener {
             helper.cameraHelper?.zoomAdd();
         }
         binding.btnChangeDel.setOnClickListener {
-            helper.cameraHelper?.zoomDown();
+            helper.cameraHelper.zoomDown();
         }
         binding.btnDeng.setOnClickListener {
             dengState = !dengState
-            helper.cameraHelper?.enableTorch(dengState);
+            helper.cameraHelper.enableTorch(dengState);
 
 
         }
