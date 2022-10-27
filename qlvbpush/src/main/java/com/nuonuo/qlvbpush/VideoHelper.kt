@@ -1,5 +1,7 @@
 package com.nuonuo.qlvbpush
 
+import android.hardware.Camera
+
 
 /**
  *视频助手
@@ -8,25 +10,35 @@ package com.nuonuo.qlvbpush
  * width 宽
  * height 高
  */
-class VideoHelper(private val fps: Int, private val rate: Int, width: Int, height: Int) {
+class VideoHelper(private val fps: Int, private val rate: Int, width: Int, height: Int) :
+    CameraHelper.PreviewChangeListener {
 
-    init {
-        //native初始化video
-        nativeVideoInit(fps, rate, width, height)
-    }
-
-    /**
-     * 开始推流到native
-     */
-    fun push(data: ByteArray) {
-        pushData(data)
-    }
+    //是否在直播
+    private var isLive = false
 
     //初始化video
-    private external fun nativeVideoInit(fps: Int, bitrate: Int, width: Int, height: Int)
+    private external fun native_Video_Init(fps: Int, bitrate: Int, width: Int, height: Int)
+    private external fun native_Video_Push(byte: ByteArray)
 
     //推送数据
     private external fun pushData(data: ByteArray)
+    override fun onChanged(width: Int, height: Int) {
+        native_Video_Init(fps, rate, width, height)
+    }
+
+    override fun onPreviewFrame(data: ByteArray, camera: Camera) {
+        if (isLive) {
+            native_Video_Push(data)
+        }
+    }
+
+    fun startLive() {
+        isLive = true
+    }
+
+    fun stopLive() {
+        isLive = false
+    }
 
 
 }

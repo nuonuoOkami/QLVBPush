@@ -3,10 +3,12 @@ package com.nuonuo.qlvbpush
 import android.graphics.ImageFormat.NV21
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
+import android.hardware.Camera.PreviewCallback
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.core.app.ComponentActivity
+import kotlin.math.abs
 
 /**
  * 相机辅助类
@@ -15,16 +17,18 @@ class CameraHelper(
     private var mActivity: ComponentActivity,
     var mCameraId: Int = CameraInfo.CAMERA_FACING_BACK,
     private var mWidth: Int,
-    private var mHeight: Int,
-  var mChangeListener:(w:Int,h:Int)->Unit
-): Camera.PreviewCallback, SurfaceHolder.Callback {
+    private var mHeight: Int
+
+) : PreviewCallback, SurfaceHolder.Callback {
     private val TAG = "CameraHelper"
-    private lateinit  var mCamera: Camera
+    private lateinit var mCamera: Camera
 
     //相机回调数据
     private var buffer: ByteArray = ByteArray((mWidth * mHeight) * 3 / 2)
     private var mSurfaceHolder // SurfaceView的帮助类
             : SurfaceHolder? = null
+    private  var  previewChangeListener: PreviewChangeListener?=null
+
     /**
      * 停止预览
      */
@@ -69,7 +73,7 @@ class CameraHelper(
         mCamera.addCallbackBuffer(buffer)
         mCamera.setPreviewCallbackWithBuffer(this)
         mCamera.setPreviewDisplay(mSurfaceHolder)
-        mChangeListener.invoke(mWidth,mHeight)
+        previewChangeListener?.onChanged(mWidth, mHeight)
         //开启预览
         mCamera.startPreview()
     }
@@ -140,20 +144,20 @@ class CameraHelper(
     }
 
     private fun setPreviewSize(parameters: Camera.Parameters?) {
-        if(parameters==null)return
+        if (parameters == null) return
         // 获取摄像头支持的宽、高
         val supportedPreviewSizes = parameters.supportedPreviewSizes
         var size = supportedPreviewSizes[0]
         Log.d(TAG, "Camera支持: " + size.width + "x" + size.height)
         // 选择一个与设置的差距最小的支持分辨率
-        var m: Int = Math.abs(size.height * size.width - mWidth * mHeight)
+        var m: Int = abs(size.height * size.width - mWidth * mHeight)
         supportedPreviewSizes.removeAt(0)
         val iterator: Iterator<Camera.Size> = supportedPreviewSizes.iterator()
         // 遍历
         while (iterator.hasNext()) {
             val next = iterator.next()
             Log.d(TAG, "支持 " + next.width + "x" + next.height)
-            val n: Int = Math.abs(next.height * next.width - mWidth * mHeight)
+            val n: Int = abs(next.height * next.width - mWidth * mHeight)
             if (n < m) {
                 m = n
                 size = next
@@ -162,9 +166,7 @@ class CameraHelper(
         mWidth = size.width
         mHeight = size.height
         parameters.setPreviewSize(mWidth, mHeight)
-        Log.d(TAG,
-            "预览分辨率 width:" + size.width + " height:" + size.height
-        )
+        Log.d(TAG, "预览分辨率 width:" + size.width + " height:" + size.height)
     }
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
@@ -191,6 +193,13 @@ class CameraHelper(
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         stopPreview()
+    }
+
+    fun setPreviewChangeListener(listener: PreviewChangeListener) {
+        previewChangeListener = listener
+    }
+    interface PreviewChangeListener:PreviewCallback {
+        fun onChanged(width: Int, height: Int)
     }
 
 }

@@ -35,21 +35,22 @@ class QLVBPushHelper(
     private var videoHelper: VideoHelper
 
     private var audioHelper: AudioHelper
-    var cameraHelper: CameraHelper =
-        CameraHelper(activity, cameraId, mWidth, mHeight) { w, h ->
-            {
 
-            }
-        }
-
+    var cameraHelper: CameraHelper
 
     init {
-
         //加载so 切勿忘记
         System.loadLibrary("q_push")
         //初始化音视频助手
         audioHelper = AudioHelper()
         videoHelper = VideoHelper(fps, rate, mWidth, mHeight)
+
+        //回调监听给video
+        cameraHelper = CameraHelper(activity, cameraId, mWidth, mHeight)
+        //设置回调
+        cameraHelper.setPreviewChangeListener(videoHelper)
+
+
     }
 
     /**
@@ -86,9 +87,6 @@ class QLVBPushHelper(
 
         }
         cameraHelper.startPreview()
-        //初始化videoHelper
-
-
     }
 
     /**
@@ -118,10 +116,7 @@ class QLVBPushHelper(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-
     companion object {
-
-
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
                 Manifest.permission.CAMERA,
@@ -142,7 +137,8 @@ class QLVBPushHelper(
     }
 
 
-    private external fun pushInit();
+    //初始化
+    private external fun pushInit()
 
 
 }

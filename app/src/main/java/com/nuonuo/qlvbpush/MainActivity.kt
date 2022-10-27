@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnChangeAdd.setOnClickListener {
-            helper.cameraHelper?.zoomAdd();
+            helper.cameraHelper.zoomAdd();
         }
         binding.btnChangeDel.setOnClickListener {
             helper.cameraHelper.zoomDown();
