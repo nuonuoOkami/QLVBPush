@@ -1,7 +1,5 @@
 package com.nuonuo.qlvbpush
 
-import java.lang.annotation.Native
-
 
 /**
  *视频助手
@@ -14,7 +12,7 @@ class VideoHelper(private val fps: Int, private val rate: Int, width: Int, heigh
 
     init {
         //native初始化video
-        native_video_init(fps, rate, width, height)
+        nativeVideoInit(fps, rate, width, height)
     }
 
     /**
@@ -25,7 +23,7 @@ class VideoHelper(private val fps: Int, private val rate: Int, width: Int, heigh
     }
 
     //初始化video
-    private external fun native_video_init(fps: Int, bitrate: Int, width: Int, height: Int)
+    private external fun nativeVideoInit(fps: Int, bitrate: Int, width: Int, height: Int)
 
     //推送数据
     private external fun pushData(data: ByteArray)

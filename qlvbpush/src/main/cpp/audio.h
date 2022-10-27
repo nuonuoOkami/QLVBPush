@@ -6,7 +6,7 @@
 #define QLVBPUSH_AUDIO_H
 
 
-class audio {
+class Audio {
 
 };
 

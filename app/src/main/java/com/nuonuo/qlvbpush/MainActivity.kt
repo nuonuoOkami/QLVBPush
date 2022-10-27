@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
     //https://developer.android.com/codelabs/camerax-getting-started?hl=zh-cn#1
     //https://juejin.cn/post/7096313126588678157
     //https://www.cnblogs.com/rustfisher/p/15700757.html
+    //预览界面支持拖动和属性设置 https://zhuanlan.zhihu.com/p/293095630
 
     private lateinit var helper: QLVBPushHelper
     private var dengState = false

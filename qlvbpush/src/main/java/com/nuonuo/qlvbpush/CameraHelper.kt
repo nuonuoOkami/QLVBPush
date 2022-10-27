@@ -1,6 +1,7 @@
 package com.nuonuo.qlvbpush
 
 import android.util.Log
+import android.util.Size
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -14,7 +15,9 @@ class CameraHelper(
     private val activity: ComponentActivity,
     private val previewView: PreviewView,
     private var cameraSelector: CameraSelector,
-    private val mImageAnalysis: UseCase
+    private val mImageAnalysis: UseCase,
+    width:Int,
+    height:Int
 ) {
     private val TAG = "CameraHelper"
 
@@ -35,9 +38,11 @@ class CameraHelper(
 
     init {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
+
         cameraProviderFuture.addListener({
             cameraProvider = cameraProviderFuture.get()
-            preview = Preview.Builder().build().apply {
+            preview = Preview.Builder().setTargetResolution(Size(1080,1920))
+                .build().apply {
                 this.setSurfaceProvider(previewView.surfaceProvider)
             }
             useCaseGroup =
@@ -46,6 +51,7 @@ class CameraHelper(
             try {
                 cameraProvider.unbindAll()
                 camera = cameraProvider.bindToLifecycle(activity, cameraSelector, useCaseGroup)
+
             } catch (ex: Exception) {
                 Log.e(TAG, "QLVBPushHelper bindToLifecycle :Error$ex ")
             }
@@ -155,5 +161,7 @@ class CameraHelper(
      */
     fun zoomValue(): Float? {
         return camera.cameraInfo.zoomState.value?.linearZoom
+
     }
+
 }
