@@ -1,7 +1,6 @@
 package com.nuonuo.qlvbpush
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.hardware.Camera
 import android.os.Build
@@ -69,6 +68,8 @@ class QLVBPushHelper(
         }
         this.pushPath = pushPath;
         isOpenPush = true
+        native_start_live(pushPath)
+        videoHelper.startLive()
     }
 
     /**
@@ -140,5 +141,6 @@ class QLVBPushHelper(
     //初始化
     private external fun pushInit()
 
+    private external fun native_start_live(path: String)
 
 }

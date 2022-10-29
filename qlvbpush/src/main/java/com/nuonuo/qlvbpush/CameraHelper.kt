@@ -12,6 +12,13 @@ import kotlin.math.abs
 
 /**
  * 相机辅助类
+ * 标清 Standard Definition：640 x 480p
+
+高清 High Definition：1024 x 720p
+
+全高清 Full High Definition：1920 x 1080p
+
+超高清 Ultra High-Definition：3840 x 2160（4K）、7680 x 4320（8K）
  */
 class CameraHelper(
     private var mActivity: ComponentActivity,
@@ -27,7 +34,7 @@ class CameraHelper(
     private var buffer: ByteArray = ByteArray((mWidth * mHeight) * 3 / 2)
     private var mSurfaceHolder // SurfaceView的帮助类
             : SurfaceHolder? = null
-    private  var  previewChangeListener: PreviewChangeListener?=null
+    private var previewChangeListener: PreviewChangeListener? = null
 
     /**
      * 停止预览
@@ -198,7 +205,8 @@ class CameraHelper(
     fun setPreviewChangeListener(listener: PreviewChangeListener) {
         previewChangeListener = listener
     }
-    interface PreviewChangeListener:PreviewCallback {
+
+    interface PreviewChangeListener : PreviewCallback {
         fun onChanged(width: Int, height: Int)
     }
 
