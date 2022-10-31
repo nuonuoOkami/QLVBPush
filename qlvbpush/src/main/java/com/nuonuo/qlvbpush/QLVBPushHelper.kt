@@ -72,6 +72,7 @@ class QLVBPushHelper(
         videoHelper.startLive()
     }
 
+
     /**
      * 开始预览
      */
@@ -87,6 +88,7 @@ class QLVBPushHelper(
             )
 
         }
+        pushInit()
         cameraHelper.startPreview()
     }
 

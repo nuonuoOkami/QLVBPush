@@ -67,8 +67,6 @@ class CameraHelper(
      * 开始预览
      */
     fun startPreview() {
-
-
         //获得camera对象
         mCamera = Camera.open(mCameraId)
         val params = mCamera.parameters
@@ -76,7 +74,7 @@ class CameraHelper(
         setPreviewOrientation()
         setPreviewSize(params)
         mCamera.parameters = params
-
+        buffer = ByteArray((mWidth * mHeight) * 3 / 2)
         mCamera.addCallbackBuffer(buffer)
         mCamera.setPreviewCallbackWithBuffer(this)
         mCamera.setPreviewDisplay(mSurfaceHolder)
@@ -177,7 +175,8 @@ class CameraHelper(
     }
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
-
+        previewChangeListener?.onPreviewFrame(data, camera)
+        mCamera.addCallbackBuffer(buffer)
     }
 
 

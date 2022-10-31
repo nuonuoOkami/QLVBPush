@@ -1,6 +1,7 @@
 package com.nuonuo.qlvbpush
 
 import android.hardware.Camera
+import android.util.Log
 
 
 /**
@@ -10,17 +11,18 @@ import android.hardware.Camera
  * width 宽
  * height 高
  */
-class VideoHelper(private val fps: Int, private val rate: Int, width: Int, height: Int) :
+class VideoHelper(private val fps: Int, private val rate: Int, val width: Int, val height: Int) :
     CameraHelper.PreviewChangeListener {
+    private val TAG = "VideoHelper"
 
     //是否在直播
     private var isLive = false
 
     //初始化video
     private external fun native_Video_Init(fps: Int, bitrate: Int, width: Int, height: Int)
+
     //推送数据
     private external fun native_Video_Push(byte: ByteArray)
-
 
 
     override fun onChanged(width: Int, height: Int) {

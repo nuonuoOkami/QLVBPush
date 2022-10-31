@@ -77,7 +77,7 @@ Java_com_nuonuo_qlvbpush_VideoHelper_native_1Video_1Push(JNIEnv *env, jobject th
  */
 void *rtmp_push(void *args) {
     char *url = static_cast<char *>(args);
-    RTMP *rtmp = nullptr;
+    RTMP *rtmp ;
     int result;
     do {
         rtmp = RTMP_Alloc();
@@ -103,7 +103,6 @@ void *rtmp_push(void *args) {
         }
 
         result = RTMP_ConnectStream(rtmp, 0);
-        LOGE("RTMP_ConnectStream %d",result)
         if (!result) { // FFmpeg 0 就是成功      RTMP 0 就是失败
             LOGE("rtmp 连接流失败 %d", result);
             break;
@@ -112,7 +111,6 @@ void *rtmp_push(void *args) {
         //准备好推流
         is_ready = true;
         packets.setPlayState(true);
-        LOGE("packets SIZE  %d",packets.size())
         //开始搞包
         RTMPPacket *rtmpPacket = nullptr;
         while (is_ready) {
@@ -125,8 +123,6 @@ void *rtmp_push(void *args) {
             //给rtmp的流 ID
             rtmpPacket->m_nInfoField2 = rtmp->m_stream_id;
             LOGE("m_stream_id")
-            int size = sizeof(rtmpPacket->m_body);
-            LOGE("rtmpPacket SIZE  %d", size)
             //发送数据
             result = RTMP_SendPacket(rtmp, rtmpPacket, 1);
             LOGE("rtmp RTMP_SendPacket ");
@@ -138,7 +134,6 @@ void *rtmp_push(void *args) {
                 LOGE("rtmp 发送包 失败 自动断开服务器");
                 break;
             }
-
 
         }
 

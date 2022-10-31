@@ -43,7 +43,7 @@ void Video::encode(signed char *data) {
     //x264_encoder_encode 或 x264_encoder_headers 之前使用或拷贝其中的数据。
     int result = x264_encoder_encode(videoEncoder, &nal, &pi_nal, picture, &pic_out);
     if (result < 0) {
-        LOGE("x264编码失败");
+        LOGE("x264编码失败")
         pthread_mutex_unlock(&mutex); // 同学们注意：一旦编码失败了，一定要解锁，否则有概率性造成死锁了
         return;
     }
@@ -77,6 +77,7 @@ void Video::encode(signed char *data) {
 }
 
 void Video::init(int width, int height, int fps, int rate) {
+    LOGE("VIDEO init")
     pthread_mutex_lock(&mutex);
     this->mWidth = width;
     this->mHeight = height;
@@ -140,7 +141,7 @@ void Video::init(int width, int height, int fps, int rate) {
 
     //初始化
     picture = new x264_picture_t;
-    x264_picture_alloc(picture, param.i_csp, param.i_height, param.i_height);
+    x264_picture_alloc(picture, param.i_csp, param.i_width, param.i_height);
 
     //编码器打开
     videoEncoder = x264_encoder_open(&param);
@@ -159,22 +160,22 @@ void Video::init(int width, int height, int fps, int rate) {
  */
 void Video::sendFrame(int type, int payload, uint8_t *frame) {
     // 去掉起始码 00 00 00 01 或者 00 00 01
-    if (frame[2] == 0x00){ // 00 00 00 01
+    if (frame[2] == 0x00) { // 00 00 00 01
         frame += 4; // 例如：共10个，挪动4个后，还剩6个
         // 保证 我们的长度是和上的数据对应，也要是6个，所以-= 4
         payload -= 4;
-    }else if(frame[2] == 0x01){ // 00 00 01
-        frame +=3; // 例如：共10个，挪动3个后，还剩7个
+    } else if (frame[2] == 0x01) { // 00 00 01
+        frame += 3; // 例如：共10个，挪动3个后，还剩7个
         // 保证 我们的长度是和上的数据对应，也要是7个，所以-= 3
         payload -= 3;
     }
     int body_size = 5 + 4 + payload;
-    RTMPPacket *packet = new RTMPPacket; // 开始封包RTMPPacket
+    auto *packet = new RTMPPacket; // 开始封包RTMPPacket
 
     RTMPPacket_Alloc(packet, body_size); // 堆区实例化 RTMPPacket
     // 区分关键帧 和 非关键帧
     packet->m_body[0] = 0x27; // 普通帧 非关键帧
-    if(type == NAL_SLICE_IDR){
+    if (type == NAL_SLICE_IDR) {
         packet->m_body[0] = 0x17; // 关键帧
     }
     packet->m_body[1] = 0x01; // 重点是此字节 如果是1 帧类型（关键帧 非关键帧），    如果是0一定是 sps pps
@@ -194,7 +195,7 @@ void Video::sendFrame(int type, int payload, uint8_t *frame) {
     packet->m_nChannel = 10; // 通道ID，随便写一个，注意：不要写的和rtmp.c(里面的m_nChannel有冲突 4301行)
     packet->m_nTimeStamp = -1; // sps pps 包 没有时间戳
     packet->m_hasAbsTimestamp = 0; // 时间戳绝对或相对 也没有时间搓
-    packet->m_headerType = RTMP_PACKET_SIZE_LARGE ; // 包的类型：若是关键帧的话，数据量比较大，所以设置大包
+    packet->m_headerType = RTMP_PACKET_SIZE_LARGE; // 包的类型：若是关键帧的话，数据量比较大，所以设置大包
     videoCallBack(packet);
 }
 
