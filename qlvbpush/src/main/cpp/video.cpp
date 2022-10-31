@@ -208,7 +208,7 @@ void Video::sendSpsPps(uint8_t *sps, uint8_t *pps, int sps_length, int pps_lengt
 
 
     int body_size = 5 + 8 + sps_length + 3 + pps_length;
-    RTMPPacket *pPacket = new RTMPPacket();
+    auto *pPacket = new RTMPPacket();
     RTMPPacket_Alloc(pPacket, body_size);
     int i = 0;
     pPacket->m_body[i++] = 0x17; // 十六进制
@@ -242,7 +242,7 @@ void Video::sendSpsPps(uint8_t *sps, uint8_t *pps, int sps_length, int pps_lengt
     pPacket->m_packetType = RTMP_PACKET_TYPE_VIDEO;
 
     pPacket->m_nBodySize = body_size; // 设置好 sps+pps的总大小
-    pPacket->m_nChannel = 100;//通道id
+    pPacket->m_nChannel = 10;//通道id
     pPacket->m_nTimeStamp = 0;// sps pps 包 没有时间戳
     pPacket->m_headerType = RTMP_PACKET_SIZE_MEDIUM;//中包
     videoCallBack(pPacket);

@@ -32,8 +32,8 @@ Java_com_nuonuo_qlvbpush_VideoHelper_native_1Video_1Init(JNIEnv *env, jobject th
 }
 
 void callBack(RTMPPacket *rtmpPacket) {
-    if (rtmpPacket) {
 
+    if (rtmpPacket) {
         //帧加上时间搓 sps pps不需要
         if (rtmpPacket->m_nTimeStamp == -1) {
             rtmpPacket->m_nTimeStamp = RTMP_GetTime() - start_time;
@@ -77,7 +77,7 @@ Java_com_nuonuo_qlvbpush_VideoHelper_native_1Video_1Push(JNIEnv *env, jobject th
  */
 void *rtmp_push(void *args) {
     char *url = static_cast<char *>(args);
-    RTMP *rtmp ;
+    RTMP *rtmp;
     int result;
     do {
         rtmp = RTMP_Alloc();
@@ -165,7 +165,6 @@ Java_com_nuonuo_qlvbpush_QLVBPushHelper_native_1start_1live(JNIEnv *env, jobject
         return;
     }
     is_live = true;
-    LOGE("start_1live")
     const char *live_path = env->GetStringUTFChars(path, nullptr);
     char *rtmpUrl = new char(strlen(live_path) + 1);
     stpcpy(rtmpUrl, live_path);//深拷贝
