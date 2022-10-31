@@ -102,7 +102,8 @@ void *rtmp_push(void *args) {
             break;
         }
 
-        result = RTMP_Connect(rtmp, nullptr);
+        result = RTMP_ConnectStream(rtmp, 0);
+        LOGE("RTMP_ConnectStream %d",result)
         if (!result) { // FFmpeg 0 就是成功      RTMP 0 就是失败
             LOGE("rtmp 连接流失败 %d", result);
             break;
@@ -111,15 +112,24 @@ void *rtmp_push(void *args) {
         //准备好推流
         is_ready = true;
         packets.setPlayState(true);
+        LOGE("packets SIZE  %d",packets.size())
+        //开始搞包
         RTMPPacket *rtmpPacket = nullptr;
         while (is_ready) {
             packets.take(rtmpPacket);
             if (!is_ready) { break; }
-            if (!rtmpPacket) { break; }
+            if (!rtmpPacket) {
+                LOGE("is_ready rtmp !rtmpPacket break ");
+                continue;
+            }
             //给rtmp的流 ID
             rtmpPacket->m_nInfoField2 = rtmp->m_stream_id;
+            LOGE("m_stream_id")
+            int size = sizeof(rtmpPacket->m_body);
+            LOGE("rtmpPacket SIZE  %d", size)
             //发送数据
-            RTMP_SendPacket(rtmp, rtmpPacket, 1);
+            result = RTMP_SendPacket(rtmp, rtmpPacket, 1);
+            LOGE("rtmp RTMP_SendPacket ");
             //释放
             RTMPPacket_Free(rtmpPacket);
             delete rtmpPacket;
@@ -164,6 +174,7 @@ Java_com_nuonuo_qlvbpush_QLVBPushHelper_native_1start_1live(JNIEnv *env, jobject
     const char *live_path = env->GetStringUTFChars(path, nullptr);
     char *rtmpUrl = new char(strlen(live_path) + 1);
     stpcpy(rtmpUrl, live_path);//深拷贝
+    LOGE("rtmpUrl%s", rtmpUrl)
     pthread_create(&pid_start, nullptr, rtmp_push, rtmpUrl);
     env->ReleaseStringUTFChars(path, live_path);
 

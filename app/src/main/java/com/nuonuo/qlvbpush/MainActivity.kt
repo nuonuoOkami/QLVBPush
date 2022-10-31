@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
         }
         binding.startLive.setOnClickListener {
-            helper.startPush("rtmp://192.168.31.162:1935/rtmplive/room")
+            helper.startPush("rtmp://121.40.103.31:1935/live/"+System.nanoTime())
         }
     }
 }
