@@ -4,9 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.hardware.Camera
 import android.os.Build
-import android.util.Log
 import android.util.Size
-import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.app.ComponentActivity
 import androidx.core.content.ContextCompat
@@ -18,51 +16,46 @@ import androidx.core.content.ContextCompat
  * 超清 720*1080    fps 15  1800k
  */
 class QLVBPushHelper(
-
     private val activity: ComponentActivity,
-    cameraId: Int = Camera.CameraInfo.CAMERA_FACING_BACK,
-    mWidth: Int = 360,
-    mHeight: Int = 640,
-    fps: Int = 15,
-    rate: Int = 400 * 1000
-
+    private var cameraId: CameraID = CameraID.FRONT,
+    var conf: LVBConf? = null
 ) {
-    private val TAG = "QLVBPushHelper"
 
-    var isInit = false;
-    var size = Size(360, 640)
-    var preView: SurfaceView? = null
+
+    //是否初始化完成
+    var isInit = false
+    var mSize = Size(360, 640)
+
+    //预览控件
+    private var preView: SurfaceView? = null
 
 
     //是否开始推流
     private var isPush = false
 
     //推流地址
-    var pushPathUrl: String? = null
+    private var pushPathUrl: String? = null
 
     //是否开始预览
-    var isPreview = false
+    private var isPreview = false
 
-    private var videoHelper: VideoHelper
 
-    private var audioHelper: AudioHelper
+    private lateinit var videoHelper: VideoHelper
 
-    private var cameraHelper: CameraHelper
-    var mFps = 15
-    var mRate = 400 * 1000;
+    private lateinit var audioHelper: AudioHelper
+
+    private lateinit var cameraHelper: CameraHelper
+
+    //帧率
+    private var mFps = 15
+
+    //码率
+    private var mRate = 400 * 1000
+
 
     init {
         //加载so 切勿忘记
         System.loadLibrary("q_push")
-        //初始化音视频助手
-        audioHelper = AudioHelper()
-        videoHelper = VideoHelper(fps, rate, mWidth, mHeight)
-
-        //回调监听给video
-        cameraHelper = CameraHelper(activity, cameraId, mWidth, mHeight)
-        //设置回调
-        cameraHelper.setPreviewChangeListener(videoHelper)
-
     }
 
 
@@ -75,6 +68,10 @@ class QLVBPushHelper(
             throw RuntimeException("推流地址不能为null")
         }
         isPush = true
+
+        if (!isInit) {
+            init()
+        }
         if (!isPreview) {
             startPreview()
         }
@@ -162,6 +159,30 @@ class QLVBPushHelper(
      * 初始化
      */
     fun init() {
+
+        if (conf != null) {
+            val confValue = LVBValueOf(conf!!)
+            mFps = confValue.fps
+            mRate = confValue.rate
+            mSize = confValue.size
+        }
+
+
+        //初始化音视频助手
+        audioHelper = AudioHelper()
+
+        videoHelper = VideoHelper(mSize.width, mSize.height)
+
+        var cId = Camera.CameraInfo.CAMERA_FACING_FRONT
+        if (cameraId == CameraID.BACK) {
+            cId = Camera.CameraInfo.CAMERA_FACING_BACK
+        }
+        //回调监听给video
+        cameraHelper = CameraHelper(activity, cId, mSize.width, mSize.height)
+        //设置回调
+        cameraHelper.setPreviewChangeListener(videoHelper)
+
+
         pushInit()
         isInit = true
     }
@@ -172,7 +193,7 @@ class QLVBPushHelper(
 
     private external fun native_start_live(path: String)
     fun size(size: Size) {
-        this.size = size
+        this.mSize = size
     }
 
     fun rtmpPath(path: String?) {
@@ -191,4 +212,10 @@ class QLVBPushHelper(
     fun preView(preView: SurfaceView) {
         this.preView = preView
     }
+
+    fun cameraId(cameraId: CameraID) {
+        this.cameraId = cameraId
+    }
+
+
 }

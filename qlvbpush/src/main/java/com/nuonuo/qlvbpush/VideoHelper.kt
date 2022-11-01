@@ -11,7 +11,7 @@ import android.util.Log
  * width 宽
  * height 高
  */
-class VideoHelper(private val fps: Int, private val rate: Int, val width: Int, val height: Int) :
+class VideoHelper(private val fps: Int, private val rate: Int) :
     CameraHelper.PreviewChangeListener {
     private val TAG = "VideoHelper"
 
