@@ -18,7 +18,7 @@ Audio::~Audio() {
 
 void Audio::initAudioEncoder(int sample_rate, int num_channels) {
 
-    this->inputSamples = num_channels;
+    this->mChannels = num_channels;
     //faacEncHandle FAACAPI faacEncOpen(
     //        unsigned long sampleRate,      // pcm音频采样率，8k,16k,44100等
     //        unsigned int numChannels,      // pcm音频通道，mono = 1 / stereo = 2
@@ -32,9 +32,11 @@ void Audio::initAudioEncoder(int sample_rate, int num_channels) {
         LOGE("audioEncoder 初始化失败")
         return;
     }
+
     // 获取编码配置的结构体指针
     // * 在调用设置编码参数之前，需要先调用该函数获取结构体指针，再进行参数填充
     faacEncConfigurationPtr config = faacEncGetCurrentConfiguration(audioEncoder);
+
     config->mpegVersion = MPEG4;//mpeg4标准 acc音频标准
     // // 对象类型只有为 LOW, iOS 的 AVAudioPlayer 才能播放
     //LC标准： https://zhidao.baidu.com/question/1948794313899470708.html
@@ -45,13 +47,16 @@ void Audio::initAudioEncoder(int sample_rate, int num_channels) {
     config->outputFormat = 0;
     // （开启降噪, 噪声控制）
     config->useTns = 1;
+
     //使用其中一个通道作为LFE通道
     config->useLfe = 0;
+
     int result = faacEncSetConfiguration(audioEncoder, config);
     if (!result) {
         LOGE("audioEncoder 设置参数失败")
         return;
     }
+
     LOGE("audioEncoder 设置参数成功")
     buffer = new u_char(maxOutputBytes);
 

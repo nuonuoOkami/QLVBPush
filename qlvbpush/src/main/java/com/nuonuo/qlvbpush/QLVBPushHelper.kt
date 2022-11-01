@@ -63,7 +63,7 @@ class QLVBPushHelper(
      * 开始推流
      */
     fun startLive() {
-
+        checkPermissions()
         if (pushPathUrl.isNullOrEmpty()) {
             throw RuntimeException("推流地址不能为null")
         }
@@ -77,8 +77,7 @@ class QLVBPushHelper(
         }
         native_start_live(pushPathUrl!!)
         videoHelper.startLive()
-
-
+        audioHelper.startLive();
     }
 
 
@@ -86,6 +85,17 @@ class QLVBPushHelper(
      * 开始预览
      */
     fun startPreview() {
+        checkPermissions()
+        cameraHelper.setPreviewDisplay(preView!!.holder)
+        cameraHelper.startPreview()
+        isPreview = true
+
+    }
+
+    /**
+     * 坚持权限和预览view
+     */
+    private fun checkPermissions() {
         if (!allPermissionsGranted()) {
             throw RuntimeException(
                 "CameraHelper Error \n" +
@@ -95,17 +105,12 @@ class QLVBPushHelper(
                         "WRITE_EXTERNAL_STORAGE" +
                         "\n权限是否申请"
             )
-
         }
         if (preView == null) {
             throw RuntimeException(
                 "CameraHelper Error =preView==null"
             )
         }
-        cameraHelper.setPreviewDisplay(preView!!.holder)
-        cameraHelper.startPreview()
-        isPreview = true
-
     }
 
     /**
@@ -169,8 +174,7 @@ class QLVBPushHelper(
         }
 
 
-        //初始化音视频助手
-        audioHelper = AudioHelper()
+
 
         videoHelper = VideoHelper(mSize.width, mSize.height)
 
@@ -182,9 +186,12 @@ class QLVBPushHelper(
         cameraHelper = CameraHelper(activity, cId, mSize.width, mSize.height)
         //设置回调
         cameraHelper.setPreviewChangeListener(videoHelper)
-
+        audioHelper = AudioHelper()
 
         pushInit()
+       audioHelper.init()
+        //初始化音视频助手
+
         isInit = true
     }
 

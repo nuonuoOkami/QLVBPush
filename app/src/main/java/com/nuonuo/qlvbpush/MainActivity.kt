@@ -27,13 +27,13 @@ class MainActivity : AppCompatActivity() {
             rate(400 * 1000)
             preView(binding.surface)
             cameraId(CameraID.FRONT)
-
         }
 
 //        //第二种
 //        var  helper=QLVBPushHelper(this, conf = LVBConf.STANDARD)
-//        helper.rtmpPath("3232")
+//        helper.rtmpPath("rtmp://xx.xxx.xxx.xx:xxxx/xx/xx")
 //        helper.preView(binding.surface)
+        //  helper.init()
         binding.btnPre.setOnClickListener {
             //预览
             helper.startPreview()
@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
             //推流
             helper.startLive()
             binding.btnStartPush.text = "推流ing"
-
 
         }
     }

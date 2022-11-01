@@ -9,7 +9,9 @@
 #include "safe_queue.h"
 #include "log4c.h"
 
+//视频处理者
 Video *video = nullptr;
+//音频处理者
 Audio *audio = nullptr;
 //是否已经准备好
 bool is_ready = false;
@@ -24,21 +26,35 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_nuonuo_qlvbpush_VideoHelper_native_1Video_1Init(JNIEnv *env, jobject thiz, jint fps,
                                                          jint bitrate, jint width, jint height) {
-
     if (video) {
         video->init(width, height, fps, bitrate);
     }
-
 }
 
+/**
+ *给 包加时间戳
+ * @param rtmpPacket 
+ */
 void callBack(RTMPPacket *rtmpPacket) {
-
     if (rtmpPacket) {
         //帧加上时间搓 sps pps不需要
         if (rtmpPacket->m_nTimeStamp == -1) {
             rtmpPacket->m_nTimeStamp = RTMP_GetTime() - start_time;
         }
         packets.insert(rtmpPacket);
+    }
+}
+
+
+/**
+ * 关闭停止的时候 清理所有数据 
+ * @param packet 
+ */
+void releasePackets(RTMPPacket **packet) {
+    if (packet) {
+        RTMPPacket_Free(*packet);
+        delete packet;
+        packet = nullptr;
     }
 }
 /**
@@ -50,7 +66,11 @@ Java_com_nuonuo_qlvbpush_QLVBPushHelper_pushInit(JNIEnv *env, jobject thiz) {
     video = new Video();
     audio = new Audio();
     video->setVideoCallBack(callBack);
+    audio->setAudioCallback(callBack);
+    packets.setReleaseListener(releasePackets);
 }
+
+
 
 
 /**
@@ -122,10 +142,9 @@ void *rtmp_push(void *args) {
             }
             //给rtmp的流 ID
             rtmpPacket->m_nInfoField2 = rtmp->m_stream_id;
-            LOGE("m_stream_id")
             //发送数据
             result = RTMP_SendPacket(rtmp, rtmpPacket, 1);
-            LOGE("rtmp RTMP_SendPacket ");
+
             //释放
             RTMPPacket_Free(rtmpPacket);
             delete rtmpPacket;
@@ -174,3 +193,30 @@ Java_com_nuonuo_qlvbpush_QLVBPushHelper_native_1start_1live(JNIEnv *env, jobject
 
 }
 
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nuonuo_qlvbpush_AudioHelper_native_1initAudioEncoder(JNIEnv *env, jobject thiz,jint sample_rate, jint num_channels) {
+    if (audio) {
+        audio->initAudioEncoder(sample_rate, num_channels);
+    }
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_nuonuo_qlvbpush_AudioHelper_native_1getInputSamples(JNIEnv *env, jobject thiz) {
+    if (audio) {
+        return audio->getInputSamples();
+    }
+    return 0;
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nuonuo_qlvbpush_AudioHelper_native_1pushAudio(JNIEnv *env, jobject thiz,
+                                                       jbyteArray bytes) {
+    if (!audio || !is_ready) {
+        return;
+    }
+    jbyte *elements = env->GetByteArrayElements(bytes, nullptr);
+    audio->encodeData(elements);
+    env->ReleaseByteArrayElements(bytes, elements, 0);
+}
