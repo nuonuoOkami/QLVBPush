@@ -29,7 +29,7 @@ enum class CameraID() {
 class LVBConfValue(var size: Size, var fps: Int, var rate: Int)
 
 
-fun LVBValueOf(conf: LVBConf): LVBConfValue {
+fun lVBValueOf(conf: LVBConf): LVBConfValue {
     if (conf == LVBConf.HD) {
         return LVBConfValue(Size(540, 960), 15, 1200 * 1000)
     } else if (conf == LVBConf.ULTRA_CLEAR) {

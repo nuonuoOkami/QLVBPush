@@ -160,8 +160,9 @@ class QLVBPushHelper(
      */
     fun init() {
 
+        //如果配置不为null 那么优先基础配置
         if (conf != null) {
-            val confValue = LVBValueOf(conf!!)
+            val confValue = lVBValueOf(conf!!)
             mFps = confValue.fps
             mRate = confValue.rate
             mSize = confValue.size
@@ -191,28 +192,34 @@ class QLVBPushHelper(
     //初始化
     private external fun pushInit()
 
+    //开播
     private external fun native_start_live(path: String)
     fun size(size: Size) {
         this.mSize = size
     }
 
+    //设置推流地址
     fun rtmpPath(path: String?) {
         this.pushPathUrl = path
 
     }
 
+    //设置帧率
     fun fps(fps: Int) {
         mFps = fps
     }
 
+    //设置码率
     fun rate(rate: Int) {
         mRate = rate
     }
 
+    //预览view
     fun preView(preView: SurfaceView) {
         this.preView = preView
     }
 
+    //设置摄像头
     fun cameraId(cameraId: CameraID) {
         this.cameraId = cameraId
     }

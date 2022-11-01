@@ -13,17 +13,10 @@ import android.util.Log
  */
 class VideoHelper(private val fps: Int, private val rate: Int) :
     CameraHelper.PreviewChangeListener {
-    private val TAG = "VideoHelper"
+
 
     //是否在直播
     private var isLive = false
-
-    //初始化video
-    private external fun native_Video_Init(fps: Int, bitrate: Int, width: Int, height: Int)
-
-    //推送数据
-    private external fun native_Video_Push(byte: ByteArray)
-
 
     override fun onChanged(width: Int, height: Int) {
         native_Video_Init(fps, rate, width, height)
@@ -43,5 +36,11 @@ class VideoHelper(private val fps: Int, private val rate: Int) :
         isLive = false
     }
 
+
+    //初始化video
+    private external fun native_Video_Init(fps: Int, bitrate: Int, width: Int, height: Int)
+
+    //推送数据
+    private external fun native_Video_Push(byte: ByteArray)
 
 }
