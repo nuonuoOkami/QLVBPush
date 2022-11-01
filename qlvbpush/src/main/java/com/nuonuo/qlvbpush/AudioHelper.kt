@@ -43,7 +43,6 @@ class AudioHelper(private var channels: Int = 2) {
                     // 成功采集到音频数据了
                     // 对音频数据进行编码并发送（将编码后的数据push到安全队列中）
                     native_pushAudio(bytes)
-                    Log.e(TAG, ":native_pushAudio ")
                 }
             }
             audioRecord.stop() // 停止录音

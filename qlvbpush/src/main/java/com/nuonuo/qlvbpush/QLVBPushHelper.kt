@@ -176,7 +176,7 @@ class QLVBPushHelper(
 
 
 
-        videoHelper = VideoHelper(mSize.width, mSize.height)
+        videoHelper = VideoHelper(mFps,mRate)
 
         var cId = Camera.CameraInfo.CAMERA_FACING_FRONT
         if (cameraId == CameraID.BACK) {
