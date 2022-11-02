@@ -137,14 +137,18 @@ class CameraHelper(
             Surface.ROTATION_180 -> degrees = 180
             Surface.ROTATION_270 -> degrees = 270
         }
+        Log.e(TAG, "setPreviewOrientation:$degrees " )
         var result: Int
         if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360
             result = (360 - result) % 360 // compensate the mirror
+            mCamera.parameters.set("preview-flip", "flip-v")
+
         } else { // back-facing
             result = (info.orientation - degrees + 360) % 360
         }
         // 设置角度, 参考源码注释
+        Log.e(TAG, "setPreviewOrientation: $result")
         mCamera.setDisplayOrientation(result)
     }
 

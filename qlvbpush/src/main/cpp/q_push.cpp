@@ -18,7 +18,7 @@ bool is_ready = false;
 SafeQueue<RTMPPacket *> packets;
 uint32_t start_time;
 //是否正在推流
-bool is_live;
+bool is_live = false;
 
 pthread_t pid_start;
 
@@ -196,7 +196,8 @@ Java_com_nuonuo_qlvbpush_QLVBPushHelper_native_1start_1live(JNIEnv *env, jobject
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_nuonuo_qlvbpush_AudioHelper_native_1initAudioEncoder(JNIEnv *env, jobject thiz,jint sample_rate, jint num_channels) {
+Java_com_nuonuo_qlvbpush_AudioHelper_native_1initAudioEncoder(JNIEnv *env, jobject thiz,
+                                                              jint sample_rate, jint num_channels) {
     if (audio) {
         audio->initAudioEncoder(sample_rate, num_channels);
     }
@@ -219,4 +220,21 @@ Java_com_nuonuo_qlvbpush_AudioHelper_native_1pushAudio(JNIEnv *env, jobject thiz
     jbyte *elements = env->GetByteArrayElements(bytes, nullptr);
     audio->encodeData(elements);
     env->ReleaseByteArrayElements(bytes, elements, 0);
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nuonuo_qlvbpush_QLVBPushHelper_native_1stop(JNIEnv *env, jobject thiz) {
+    is_ready = false;
+    is_live = false;
+    packets.setPlayState(false);
+    pthread_join(pid_start, nullptr);
+
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_nuonuo_qlvbpush_QLVBPushHelper_native_1release(JNIEnv *env, jobject thiz) {
+    delete audio;
+    delete video;
+    audio = nullptr;
+    video = nullptr;
 }
