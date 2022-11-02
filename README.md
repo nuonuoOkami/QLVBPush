@@ -9,14 +9,17 @@
     x264
 
 ### 支持
+
     rtmp推流直播
     提供SD,HD,FHD三种基础配置
+
 ### native占用
+
 ![Image_text](https://github.com/nuonuoOkami/images/blob/main/push_native.png)
 
 ### 依赖使用
 
-    暂未开放
+    implementation 'io.github.nuonuoOkami:QLVBPush:1.1.0'
 
 ### 使用方式
 
@@ -51,6 +54,7 @@
 ### Change Log
 
 #### 1.0
+
     支持切换摄像头
     提供两者启动方式
     最基础的推拉流sdk 
