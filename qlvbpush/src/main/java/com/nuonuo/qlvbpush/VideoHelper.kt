@@ -18,13 +18,31 @@ class VideoHelper(private val fps: Int, private val rate: Int) :
     //是否在直播
     private var isLive = false
 
+    private var mAngel = 0
+    private var mWidth = 0
+    private var mHeight = 0
     override fun onChanged(width: Int, height: Int) {
-        native_Video_Init(fps, rate, width, height)
+        if (width > height) {
+            mWidth = height
+            mHeight = width
+            native_Video_Init(fps, rate, height, width)
+        } else {
+            mWidth = width
+            mHeight = height
+            native_Video_Init(fps, rate, width, height)
+        }
+
+
     }
+
+    override fun angel(angel: Int) {
+        mAngel = angel
+    }
+
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
         if (isLive) {
-            native_Video_Push(data)
+            native_Video_Push(NV21.rotation(90, data, mWidth, mHeight))
         }
     }
 

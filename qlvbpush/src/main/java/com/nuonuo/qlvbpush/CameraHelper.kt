@@ -4,7 +4,7 @@ import android.graphics.ImageFormat.NV21
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.hardware.Camera.PreviewCallback
-import android.util.Log
+
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.core.app.ComponentActivity
@@ -137,6 +137,8 @@ class CameraHelper(
             Surface.ROTATION_180 -> degrees = 180
             Surface.ROTATION_270 -> degrees = 270
         }
+
+//        previewChangeListener?.angel(degrees)
         var result: Int
         if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360
@@ -144,8 +146,10 @@ class CameraHelper(
         } else { // back-facing
             result = (info.orientation - degrees + 360) % 360
         }
+
         // 设置角度, 参考源码注释
         mCamera.setDisplayOrientation(result)
+        previewChangeListener?.angel(result)
     }
 
     private fun setPreviewSize(parameters: Camera.Parameters?) {
@@ -153,7 +157,7 @@ class CameraHelper(
         // 获取摄像头支持的宽、高
         val supportedPreviewSizes = parameters.supportedPreviewSizes
         var size = supportedPreviewSizes[0]
-        Log.d(TAG, "Camera支持: " + size.width + "x" + size.height)
+
         // 选择一个与设置的差距最小的支持分辨率
         var m: Int = abs(size.height * size.width - mWidth * mHeight)
         supportedPreviewSizes.removeAt(0)
@@ -161,7 +165,7 @@ class CameraHelper(
         // 遍历
         while (iterator.hasNext()) {
             val next = iterator.next()
-            Log.d(TAG, "支持 " + next.width + "x" + next.height)
+
             val n: Int = abs(next.height * next.width - mWidth * mHeight)
             if (n < m) {
                 m = n
@@ -171,7 +175,7 @@ class CameraHelper(
         mWidth = size.width
         mHeight = size.height
         parameters.setPreviewSize(mWidth, mHeight)
-        Log.d(TAG, "预览分辨率 width:" + size.width + " height:" + size.height)
+
     }
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
@@ -207,6 +211,7 @@ class CameraHelper(
 
     interface PreviewChangeListener : PreviewCallback {
         fun onChanged(width: Int, height: Int)
+        fun angel(angel: Int)
     }
 
 }

@@ -1,6 +1,7 @@
 package com.nuonuo.qlvbpush
 
 import android.os.Bundle
+import android.util.Log
 import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
 import com.nuonuo.qlvbpush.databinding.ActivityMainBinding
@@ -22,7 +23,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         val helper = QLVBPushHelper(this).init {
             size(Size(360, 640))
-            rtmpPath("rtmp://121.40.103.31:1935/live/999533")
+            val path="rtmp://121.40.103.31:1935/live/" + System.currentTimeMillis()
+            rtmpPath(path)
+            Log.e(TAG, "onCreate: $path")
             fps(15)
             rate(400 * 1000)
             preView(binding.surface)
