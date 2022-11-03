@@ -1,7 +1,6 @@
 package com.nuonuo.qlvbpush
 
 import android.os.Bundle
-import android.util.Log
 import android.util.Size
 import androidx.appcompat.app.AppCompatActivity
 import com.nuonuo.qlvbpush.databinding.ActivityMainBinding
@@ -22,14 +21,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val helper = QLVBPushHelper(this).init {
-            size(Size(360, 640))
-            val path="rtmp://121.40.103.31:1935/live/" + System.currentTimeMillis()
-            rtmpPath(path)
-            Log.e(TAG, "onCreate: $path")
-            fps(15)
-            rate(400 * 1000)
+            size(Size(480, 720))
+            rtmpPath("rtmp://121.40.103.31:1935/live/99")
+            fps(25)
+            rate(2 * 1000)
             preView(binding.surface)
-            cameraId(CameraID.FRONT)
+            cameraId(CameraID.BACK)
         }
 
 //        //第二种
@@ -40,6 +37,10 @@ class MainActivity : AppCompatActivity() {
         binding.btnPre.setOnClickListener {
             //预览
             helper.startPreview()
+//            //切换摄像头
+//            helper.switchCamera()
+//            //关闭 释放直播
+//            helper.stop();
         }
         binding.btnStartPush.setOnClickListener {
             //推流

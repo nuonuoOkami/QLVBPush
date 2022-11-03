@@ -116,19 +116,13 @@ class QLVBPushHelper(
     /**
      * 停止推流
      */
-    fun stopPush() {
+    fun stop() {
         isPush = false
         cameraHelper.stopPreview()
-        release()
-    }
+        native_stop()
+        native_release()
 
-    /**
-     * 停止预览
-     */
-    fun stopPreview() {
-        cameraHelper.stopPreview()
     }
-
 
     /**
      * 判断是否拥有全部权限
@@ -154,13 +148,6 @@ class QLVBPushHelper(
 
 
     /**
-     * 释放
-     */
-    private fun release() {
-
-    }
-
-    /**
      * 初始化
      */
     fun init() {
@@ -172,12 +159,7 @@ class QLVBPushHelper(
             mRate = confValue.rate
             mSize = confValue.size
         }
-
-
-
-
-        videoHelper = VideoHelper(mFps,mRate)
-
+        videoHelper = VideoHelper(mFps, mRate)
         var cId = Camera.CameraInfo.CAMERA_FACING_FRONT
         if (cameraId == CameraID.BACK) {
             cId = Camera.CameraInfo.CAMERA_FACING_BACK
@@ -189,7 +171,7 @@ class QLVBPushHelper(
         audioHelper = AudioHelper()
 
         pushInit()
-       audioHelper.init()
+        audioHelper.init()
         //初始化音视频助手
 
         isInit = true
@@ -201,6 +183,12 @@ class QLVBPushHelper(
 
     //开播
     private external fun native_start_live(path: String)
+
+    //关闭
+    private external fun native_stop()
+
+    //释放
+    private external fun native_release()
     fun size(size: Size) {
         this.mSize = size
     }
@@ -208,7 +196,6 @@ class QLVBPushHelper(
     //设置推流地址
     fun rtmpPath(path: String?) {
         this.pushPathUrl = path
-
     }
 
     //设置帧率
@@ -229,6 +216,13 @@ class QLVBPushHelper(
     //设置摄像头
     fun cameraId(cameraId: CameraID) {
         this.cameraId = cameraId
+    }
+
+    /**
+     * 切换摄像头
+     */
+    fun switchCamera() {
+        cameraHelper.switchCamera()
     }
 
 
