@@ -42,7 +42,7 @@ class VideoHelper(private val fps: Int, private val rate: Int) :
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
         if (isLive) {
-            native_Video_Push(NV21.rotation(90, data, mWidth, mHeight))
+            native_Video_Push(NV21.rotation(mAngel, data, mWidth, mHeight))
         }
     }
 

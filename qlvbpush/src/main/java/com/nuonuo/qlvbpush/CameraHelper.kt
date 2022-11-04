@@ -4,7 +4,6 @@ import android.graphics.ImageFormat.NV21
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.hardware.Camera.PreviewCallback
-
 import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.core.app.ComponentActivity
@@ -81,6 +80,13 @@ class CameraHelper(
         previewChangeListener?.onChanged(mWidth, mHeight)
         //开启预览
         mCamera.startPreview()
+
+        if (mCameraId == CameraInfo.CAMERA_FACING_BACK) {
+            previewChangeListener?.angel(90)
+        } else {
+            previewChangeListener?.angel(270)
+        }
+
     }
 
     /**
@@ -138,7 +144,6 @@ class CameraHelper(
             Surface.ROTATION_270 -> degrees = 270
         }
 
-//        previewChangeListener?.angel(degrees)
         var result: Int
         if (info.facing == CameraInfo.CAMERA_FACING_FRONT) {
             result = (info.orientation + degrees) % 360
@@ -149,7 +154,7 @@ class CameraHelper(
 
         // 设置角度, 参考源码注释
         mCamera.setDisplayOrientation(result)
-        previewChangeListener?.angel(result)
+
     }
 
     private fun setPreviewSize(parameters: Camera.Parameters?) {

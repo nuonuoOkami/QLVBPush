@@ -9,7 +9,8 @@ package com.nuonuo.qlvbpush;
 class NV21 {
 
     public static byte[] rotation(int angel, byte[] data, int imageWidth, int imageHeight) {
-        angel = 360 - angel;
+        // 后置 90度 angel = 90;
+        //前置angel=270;
         if (angel == 90)
             return NV21_rotate_to_90(data, new byte[data.length], imageHeight, imageWidth);
         if (angel == 180)
