@@ -19,7 +19,7 @@
 
 ### 依赖使用
 
-    implementation 'io.github.nuonuoOkami:QLVBPush:1.0.0'
+    implementation 'io.github.nuonuoOkami:QLVBPush:1.1.0'
 
 ### 使用方式
 
