@@ -44,7 +44,7 @@ void Video::encode(signed char *data) {
     int result = x264_encoder_encode(videoEncoder, &nal, &pi_nal, picture, &pic_out);
     if (result < 0) {
         LOGE("x264编码失败")
-        pthread_mutex_unlock(&mutex); // 同学们注意：一旦编码失败了，一定要解锁，否则有概率性造成死锁了
+        pthread_mutex_unlock(&mutex); // 一旦编码失败了，一定要解锁，否则有概率性造成死锁了
         return;
     }
     int sps_length, pps_length;
@@ -62,7 +62,7 @@ void Video::encode(signed char *data) {
             // p_payload 该NAL单元存储数据的开始地 
             memcpy(sps, x264Nal.p_payload + 4, sps_length);
         } else if (x264Nal.i_type == NAL_PPS) {
-            pps_length = x264Nal.i_payload - 4; // 去掉起始码 之前我们学过的内容：00 00 00 01）
+            pps_length = x264Nal.i_payload - 4; // 去掉起始码
             memcpy(pps, x264Nal.p_payload + 4, pps_length); // 由于上面减了4，所以+4挪动这里的位置开始
             sendSpsPps(sps, pps, sps_length, pps_length); // pps是跟在sps后面的，这里拿到的pps表示前面的sps肯定拿到了
         } else {
